@@ -1,0 +1,11 @@
+/www/config_local.php
+/www/admin/config_local.php
+/www/system/storage/
+/error/
+/stats/
+/www/image/
+/www/media/
+/www/vqmod/
+/.idea/
+/docker/db/
+/docker/sphinx/data/

@@ -1,0 +1,67 @@
+version: "2"
+
+services:
+
+    nginx:
+        image: nginx
+        volumes:
+            - ./docker/nginx/:/etc/nginx/conf.d/
+        networks:
+            - front
+            - backend
+        ports:
+            - "80:80"
+    apache:
+        #image: marterus/dockertest:latest
+        build: ./docker/apache
+        volumes:
+            - ./www/:/var/www/html/
+            - ./docker/apache/php.ini:/usr/local/etc/php/php.ini
+        networks:
+            - backend
+    redis:
+        image: redis
+        networks:
+            - backend
+    db:
+        image: "mysql:5.7"
+        volumes:
+            - ./docker/db:/var/lib/mysql
+        environment:
+               MYSQL_ROOT_PASSWORD: root
+               MYSQL_DATABASE: local
+               MYSQL_USER: local
+               MYSQL_PASSWORD: local
+        networks:
+            - backend
+
+    sphinx:
+        image: leodido/sphinxsearch:2.2.9
+        command: ./bin/searchd.sh
+        volumes:
+            - ./docker/sphinx/sphinx.conf:/usr/local/etc/sphinx.conf
+            - ./docker/sphinx/data/diz:/var/diz/sphinx
+            - ./docker/sphinx/data/run:/var/run/sphinx
+            - ./docker/sphinx/data/lib:/var/lib/sphinx
+            - ./docker/sphinx/data/log:/var/log/sphinx
+            - ./docker/sphinx/data/idx:/var/idx/sphinx
+        networks:
+            - backend
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin:latest
+        environment:
+            - PMA_HOST=db
+            - PMA_USER=local
+            - PMA_PASSWORD=local
+        volumes:
+            - ./docker/apache/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
+            - /sessions
+        networks:
+            - backend
+
+networks:
+    front:
+        external:
+            name: front
+    backend:
